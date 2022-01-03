@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name         TimesShowFuel
+// @name         Times Show Fuel
 // @namespace    times_show_fuel
-// @version      0.1
+// @version      0.11
 // @description  Show Times car share fuel remaining
 // @author       stream3715
 // @match        https://share.timescar.jp/view/station/stationMap.jsp*
@@ -49,7 +49,6 @@
         }
     }
 
-    //コールバック関数
     async function callback(mutationsList, observer) {
         observer.disconnect();
         for (const mutation of mutationsList) {
@@ -64,13 +63,10 @@
         observer.observe(target, option);
     }
 
-    //ターゲット要素をDOMで取得
     const target = document.getElementById("timetableHtmlTag");
     if (!target) return;
 
-    //インスタンス化
     const obs = new MutationObserver(callback);
-    //ターゲット要素の監視を開始
     obs.observe(target, option);
 
 })();
