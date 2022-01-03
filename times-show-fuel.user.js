@@ -1,10 +1,13 @@
 // ==UserScript==
 // @name         Times Show Fuel
 // @namespace    times_show_fuel
-// @version      0.11
 // @description  Show Times car share fuel remaining
 // @author       stream3715
 // @match        https://share.timescar.jp/view/station/stationMap.jsp*
+// @version      0.12
+// @since        0.1  - 20220101 初版
+// @since        0.11 - 20220103 コメント削除
+// @since        0.12 - 20220103 root.getElementById(x.id).getElementByXPath("./p/a")がnullのときに処理が続行するバグを修正
 // @grant        none
 // ==/UserScript==
 
@@ -27,24 +30,13 @@
 
         xhr.onreadystatechange = function () {
             if (xhr.readyState === 4 && xhr.status === 200) {
-                const carList = xhr.response.getElementById("timetableHtmlTag");
-                const fuelList = Array.from(carList.getElementsByTagName("div")).map(x => {
-                    if (!x.getElementByXPath('./table/tbody/tr[2]/td[2]')) {
-                        console.error(x.id)
-                    }
-                    else {
-                        return {
-                            id: x.id,
-                            fuel: x.getElementByXPath('./table/tbody/tr[2]/td[2]').textContent
-                        }
+                Array.from(xhr.response.getElementById("timetableHtmlTag").getElementsByTagName("div")).forEach(x => {
+                    const fuelStatus = x.getElementByXPath('./table/tbody/tr[2]/td[2]')
+                    if (fuelStatus && root.getElementById(x.id)) {
+                        const tableCarName = root.getElementById(x.id).getElementByXPath("./p/a")
+                        tableCarName.textContent += "／" + fuelStatus.textContent
                     }
                 });
-
-                if (fuelList) {
-                    fuelList.map(x => {
-                        root.getElementById(x.id).getElementByXPath("./p/a").textContent = root.getElementById(x.id).getElementByXPath("./p/a").textContent + "／" + x.fuel
-                    })
-                }
             }
         }
     }
@@ -64,9 +56,9 @@
     }
 
     const target = document.getElementById("timetableHtmlTag");
-    if (!target) return;
-
-    const obs = new MutationObserver(callback);
-    obs.observe(target, option);
+    if (target) {
+        const obs = new MutationObserver(callback);
+        obs.observe(target, option);
+    }
 
 })();
