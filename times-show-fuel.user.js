@@ -7,7 +7,7 @@
 // @version      0.12
 // @since        0.1  - 20220101 初版
 // @since        0.11 - 20220103 コメント削除
-// @since        0.12 - 20220103 重複して表示するバグを修正
+// @since        0.12 - 20220103 root.getElementById(x.id).getElementByXPath("./p/a")がnullのときに処理が続行するバグを修正
 // @grant        none
 // ==/UserScript==
 
@@ -33,7 +33,8 @@
                 Array.from(xhr.response.getElementById("timetableHtmlTag").getElementsByTagName("div")).forEach(x => {
                     const fuelStatus = x.getElementByXPath('./table/tbody/tr[2]/td[2]')
                     if (fuelStatus && root.getElementById(x.id)) {
-                        root.getElementById(x.id).getElementByXPath("./p/a").textContent += "／" + fuelStatus.textContent
+                        const tableCarName = root.getElementById(x.id).getElementByXPath("./p/a")
+                        tableCarName.textContent += "／" + fuelStatus.textContent
                     }
                 });
             }
